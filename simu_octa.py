@@ -3,10 +3,11 @@ import itertools
 import random
 from scipy.spatial import distance
 
-def generate_octagon():
+def generate_large_octagon(radius=1000):
     """ 正八角形の頂点を生成 """
     theta = np.linspace(0, 2 * np.pi, 9)[:-1]  # 0~2πの間を8分割
-    return np.array([(np.cos(t), np.sin(t)) for t in theta])
+    return np.array([(radius * np.cos(t), radius * np.sin(t)) for t in theta])
+
 
 def find_nearest_neighbor_path(points, start_idx):
     """ 最も近い順に点を結ぶ経路を決定 """
@@ -24,6 +25,8 @@ def find_nearest_neighbor_path(points, start_idx):
     return path
 
 
+from itertools import combinations
+
 def check_intersections(points, path):
     """ 経路が交差しているかを判定 """
     edges = [(path[i], path[i+1]) for i in range(len(path) - 1)]
@@ -35,16 +38,17 @@ def check_intersections(points, path):
         
         return ccw(p1, p3, p4) != ccw(p2, p3, p4) and ccw(p1, p2, p3) != ccw(p1, p2, p4)
     
-    for (i, (a1, a2)) in enumerate(edges):
-        for (b1, b2) in edges[i+2:]:  # 連続する辺同士は交差しないのでスキップ
-            if lines_intersect(points[a1], points[a2], points[b1], points[b2]):
-                return True
+    # 全ての辺の組み合わせに対して交差判定を実行
+    for (a1, a2), (b1, b2) in combinations(edges, 2):
+        if lines_intersect(points[a1], points[a2], points[b1], points[b2]):
+            return True
     
     return False
 
+
 def simulate(n_trials):
     """ 交差するケースの確率をシミュレーションで求める """
-    octagon = generate_octagon()
+    octagon = generate_large_octagon(radius=100)
     intersection_count = 0
     
     for _ in range(n_trials):
@@ -62,9 +66,14 @@ def simulate(n_trials):
         # 交差判定
         if check_intersections(octagon, path):
             intersection_count += 1
-    
+            
+    print(intersection_count)
+
+
     return intersection_count / n_trials
 
+
+
 # シミュレーション実行
-probability= simulate(1000)
-print(f"交差する確率: {probability:.10f}")
+probability= simulate(100000)
+print(f"交差する確率: {probability:.1f}")
