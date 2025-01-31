@@ -1,7 +1,8 @@
 import numpy as np
-import itertools
 import random
 from scipy.spatial import distance
+from itertools import combinations
+
 
 def find_nearest_neighbor_path(points, start_idx):
     """ 最も近い順に点を結ぶ経路を決定 """
@@ -30,10 +31,10 @@ def check_intersections(points, path):
         
         return ccw(p1, p3, p4) != ccw(p2, p3, p4) and ccw(p1, p2, p3) != ccw(p1, p2, p4)
     
-    for (i, (a1, a2)) in enumerate(edges):
-        for (b1, b2) in edges[i+2:]:  # 連続する辺同士は交差しないのでスキップ
-            if lines_intersect(points[a1], points[a2], points[b1], points[b2]):
-                return True
+    # 全ての辺の組み合わせに対して交差判定を実行
+    for (a1, a2), (b1, b2) in combinations(edges, 2):
+        if lines_intersect(points[a1], points[a2], points[b1], points[b2]):
+            return True
     
     return False
 
@@ -64,9 +65,11 @@ def simulate_two_column(n_trials):
         
         if check_intersections(points, path):
             intersection_count += 1
-    
+
+    print(intersection_count)
     return intersection_count / n_trials
 
+
 # シミュレーション実行
-probability = simulate_two_column(1000000)
+probability = simulate_two_column(100000)
 print(f"交差する確率: {probability:.10f}")
