@@ -2,6 +2,8 @@ import numpy as np
 import itertools
 import random
 from scipy.spatial import distance
+from itertools import combinations
+
 
 def generate_large_octagon(radius=1000):
     """ 正八角形の頂点を生成 """
@@ -23,9 +25,6 @@ def find_nearest_neighbor_path(points, start_idx):
         current_idx = nearest_idx
     
     return path
-
-
-from itertools import combinations
 
 def check_intersections(points, path):
     """ 経路が交差しているかを判定 """
